@@ -1,5 +1,5 @@
 
-
+const axios = require("axios") ;
 const { trace } = require("@opentelemetry/api");
 const { NodeTracerProvider } = require('@opentelemetry/node');
 const { SimpleSpanProcessor } = require('@opentelemetry/tracing');
@@ -43,6 +43,7 @@ registerInstrumentations({
 });
 
 const express = require('express');
+const { required } = require("nodemon/lib/config");
 
 
 const app = express()
@@ -102,6 +103,34 @@ app.get('/get', async (req, res) => {
     span.end()
     return res.status(200).json({ value })
 })
+
+
+app.get('/convert',async (req,res,next)=>{
+
+    try {
+        const amount = req.query.amount;
+
+        console.log({amount})
+        const span1 = provider.getTracer("service-1-tracer").startSpan("converter-api-tracer")
+        const data = await axios({
+            method : 'GET' ,
+            url : 'http://localhost:3002' 
+        })
+    
+        console.log(data.data)
+        const rate = data.data.rate 
+        span1.setAttribute("amount",amount) 
+        span1.setAttribute("rate",rate) 
+        span1.end()
+        return res.status(200).json({
+            amount : amount * rate 
+        })
+    }catch(e){
+        next(e)
+    }
+
+
+});
 
 app.listen(3001, () => {
     console.log(` -- server started on port 3001 -`)
