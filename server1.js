@@ -1,7 +1,9 @@
 
 const axios = require("axios");
-const { trace, context, propagation } = require("@opentelemetry/api");
-const { NodeTracerProvider } = require('@opentelemetry/node');
+const { trace, context, propagation , SpanContext} = require("@opentelemetry/api");
+const api = require("@opentelemetry/api")
+// const { NodeTracerProvider } = require('@opentelemetry/node');
+const { NodeTracerProvider } = require('@opentelemetry/sdk-trace-node');
 const { SimpleSpanProcessor } = require('@opentelemetry/tracing');
 const { ZipkinExporter } = require("@opentelemetry/exporter-zipkin")
 const { registerInstrumentations } = require("@opentelemetry/instrumentation")
@@ -157,14 +159,29 @@ app.get('/convert-2', async (req, res, next) => {
         await sharedLib.wait(20);
         span2.end()
         const span3 = provider.getTracer("service-1-tracer").startSpan("converter-span", undefined, trace.setSpan(context.active(), span1))
-
-
-        console.log(span1._spanContext.traceId)
-        console.log(span1._spanContext.spanId)
+        
+        const tracer = provider.getTracer("demo");
+        const span = tracer.startSpan("main")
+        // todo 
+        console.log(api.trace.SpanContext)
+        // const {SpanContext} = required("@opentelemetry/api")
+        // console.log(SpanContext)
+        span.end()
+        // console.log(span1._spanContext.traceId)
+        // console.log(span1._spanContext.spanId)
         const {
             traceId,
             spanId
-        } = span1._spanContext
+        } = span1.spanContext()
+
+      
+
+        // Serialize the traceparent and tracestate from context into
+        // an output object.
+        //
+        // This example uses the active trace context, but you can
+        // use whatever context is appropriate to your scenario.
+     
         const data = await axios({
             method: 'GET',
             url: 'http://localhost:3001/asdf',
@@ -176,7 +193,7 @@ app.get('/convert-2', async (req, res, next) => {
 
         })
 
-        console.log(data.data)
+        // console.log(data.data)
         const rate = data.data.rate
         span1.setAttribute("amount", amount)
         span1.setAttribute("rate", rate)
@@ -200,17 +217,25 @@ app.get('/asdf', (req, res) => {
 
     console.log({ headers })
     const { traceId, spanId } = headers;
-    // const span = trace.getTracer("service-1-tracer").getSpan("asdf-span",undefined,incomingContext)
-    const customContext = trace.setSpan(context.active(), {
-        traceId,
-        spanId,
-    });
-
-    console.log({ customContext })
-    const span = provider.getTracer("service-1-tracer").startSpan("asdf",undefined,)
+    // console.log(context.active())
+    // const customContext = trace.setSpan(context.active(), {
+    //     traceId,
+    //     spanId,
+    //   });
+    //   customContext._currentContext.set('traceId',traceId)
+    // console.log({ customContext })
+    // console.log(customContext._currentContext)
+    // const span = provider.getTracer("service-1-tracer").startSpan("asdf",undefined,customContext)
     // const span = provider.startSpan('example-span', undefined, customContext);
+
+    console.log(trace.SpanContext)
+    // const remoteContext = trace.SpanContext.createFromRemoteParent({
+    //     traceId ,
+    //     spanId ,
+    //     traceFlags: trace.TraceFlags.SAMPLED,
+    // });
     const rate = Math.random() * 100;
-    span.end()
+    // span.end()
     return res.status(200).json({ rate });
 
 });

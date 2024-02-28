@@ -5,6 +5,8 @@
   "license": "MIT",
   "dependencies": {
     "@opentelemetry/api": "^1.7.0",
+    "@opentelemetry/auto-instrumentations-node": "^0.41.1",
+    "@opentelemetry/context-async-hooks": "^1.21.0",
     "@opentelemetry/core": "^1.21.0",
     "@opentelemetry/exporter-jaeger": "^1.21.0",
     "@opentelemetry/exporter-zipkin": "^1.21.0",
@@ -13,6 +15,9 @@
     "@opentelemetry/instrumentation-redis": "^0.36.0",
     "@opentelemetry/instrumentation-redis-4": "^0.36.0",
     "@opentelemetry/node": "^0.24.0",
+    "@opentelemetry/sdk-node": "^0.48.0",
+    "@opentelemetry/sdk-trace-node": "^1.21.0",
+    "@opentelemetry/semantic-conventions": "^1.21.0",
     "@opentelemetry/tracing": "^0.24.0",
     "axios": "^1.6.7",
     "express": "^4.18.2",
